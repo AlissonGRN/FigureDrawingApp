@@ -9,7 +9,6 @@ The Figure Drawing App is a Python desktop application built using the tkinter l
 - Select a folder containing images (JPG, JPEG, PNG).
 - Start and stop a slideshow to automatically switch between images.
 - Navigate manually through images using the "Previous" and "Next" buttons.
-- View images resized to fit a maximum size of 400x400 pixels while maintaining their aspect ratio.
 
 ## Getting Started
 
@@ -22,8 +21,8 @@ The Figure Drawing App is a Python desktop application built using the tkinter l
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your_username/figure-drawing-app.git
-   cd figure-drawing-app
+   git clone https://github.com/AlissonGRN/FigureDrawingApp.git
+   cd FigureDrawingApp
    ```
 2. Create and activate a virtual environment (recommended):
    ```bash
