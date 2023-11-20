@@ -1,2 +1,7 @@
 # ignore virtual environment folder
 figureAppEnv/
+
+# ignore build folders and files
+dist/
+build/
+main.spec
