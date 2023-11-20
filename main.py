@@ -6,7 +6,7 @@ from PIL import Image, ImageTk
 class FigureDrawingApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("App de Desenho de Figura Humana")
+        self.root.title("Figure Drawing App")
         
         self.image_folder = ""
         self.image_files = []
@@ -23,13 +23,18 @@ class FigureDrawingApp:
         
         self.stop_button = tk.Button(root, text="Stop", command=self.stop_slideshow)
         self.stop_button.pack()
+
+        self.navigation_frame = tk.Frame(root)
+        self.navigation_frame.pack()
         
-        self.previous_button = tk.Button(root, text="Previous", command=self.show_previous_image)
-        self.previous_button.pack()
+        self.previous_button = tk.Button(self.navigation_frame, text="Previous", command=self.show_previous_image)
+        self.previous_button.pack(side=tk.LEFT)
         
-        self.next_button = tk.Button(root, text="Next", command=self.show_next_image)
-        self.next_button.pack()
+        self.next_button = tk.Button(self.navigation_frame, text="Next", command=self.show_next_image)
+        self.next_button.pack(side=tk.RIGHT)
         
+        self.slideshow_running = False  # Variável para controlar o slideshow
+    
     def select_image_folder(self):
         self.image_folder = tk.filedialog.askdirectory()
         if self.image_folder:
@@ -57,16 +62,11 @@ class FigureDrawingApp:
             photo = ImageTk.PhotoImage(resized_image)
             self.image_label.config(image=photo)
             self.image_label.image = photo
-
     
     def start_slideshow(self):
         if self.image_files:
             self.slideshow_running = True
-            while self.slideshow_running:
-                self.show_image()
-                self.root.update()
-                time.sleep(3)
-                self.current_image_index = (self.current_image_index + 1) % len(self.image_files)
+            self.show_next_image_continuously()
     
     def stop_slideshow(self):
         self.slideshow_running = False
@@ -80,6 +80,11 @@ class FigureDrawingApp:
         if self.image_files:
             self.current_image_index = (self.current_image_index + 1) % len(self.image_files)
             self.show_image()
+    
+    def show_next_image_continuously(self):
+        if self.slideshow_running:
+            self.show_next_image()
+            self.root.after(3000, self.show_next_image_continuously)  # Chama a si mesma após 3 segundos para avançar a imagem
 
 if __name__ == "__main__":
     root = tk.Tk()
