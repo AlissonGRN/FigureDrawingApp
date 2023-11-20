@@ -27,13 +27,13 @@ class FigureDrawingApp:
         self.navigation_frame = tk.Frame(root)
         self.navigation_frame.pack()
         
-        self.previous_button = tk.Button(self.navigation_frame, text="Previous", command=self.show_previous_image)
+        self.previous_button = tk.Button(self.navigation_frame, text="<< Previous", command=self.show_previous_image)
         self.previous_button.pack(side=tk.LEFT)
         
-        self.next_button = tk.Button(self.navigation_frame, text="Next", command=self.show_next_image)
+        self.next_button = tk.Button(self.navigation_frame, text="Next >>", command=self.show_next_image)
         self.next_button.pack(side=tk.RIGHT)
         
-        self.slideshow_running = False  # Variável para controlar o slideshow
+        self.slideshow_running = False
     
     def select_image_folder(self):
         self.image_folder = tk.filedialog.askdirectory()
@@ -84,7 +84,7 @@ class FigureDrawingApp:
     def show_next_image_continuously(self):
         if self.slideshow_running:
             self.show_next_image()
-            self.root.after(3000, self.show_next_image_continuously)  # Chama a si mesma após 3 segundos para avançar a imagem
+            self.root.after(60000, self.show_next_image_continuously)
 
 if __name__ == "__main__":
     root = tk.Tk()
