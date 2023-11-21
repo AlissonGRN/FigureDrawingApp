@@ -12,6 +12,7 @@ class FigureDrawingApp:
         self.image_folder = ""
         self.image_files = []
         self.current_image_index = 0
+        self.paused = False
         
         # Create a label to display images
         self.image_label = tk.Label(root)
@@ -20,8 +21,18 @@ class FigureDrawingApp:
         # Create buttons for selecting image folder, starting, and stopping the slideshow
         self.load_button = tk.Button(root, text="Select Image Folder", command=self.select_image_folder)
         self.load_button.pack()
-        self.start_button = tk.Button(root, text="Start", command=self.start_slideshow)
-        self.start_button.pack()
+
+        # Create frame for start and pause buttons
+        self.start_pause_frame = tk.Frame(root)
+        self.start_pause_frame.pack()
+
+
+        self.start_button = tk.Button(self.start_pause_frame, text="Start", command=self.start_slideshow)
+        self.start_button.pack(side=tk.RIGHT)
+
+        self.pause_button = tk.Button(self.start_pause_frame, text="Pause", command=self.pause_slideshow)
+        self.pause_button.pack(side=tk.LEFT)
+
         self.stop_button = tk.Button(root, text="Stop", command=self.stop_slideshow)
         self.stop_button.pack()
 
@@ -62,12 +73,19 @@ class FigureDrawingApp:
         self.time_remaining_label.config(text=f"Time Remaining: {time_remaining} seconds")
 
     def start_slideshow(self):
-        """Start the slideshow by setting the selected time interval and initiating the continuous update of time."""
+        """Start the slideshow or continue from pause."""
         if self.image_files:
             self.slideshow_running = True
             selected_time = int(self.selected_time.get())
             self.update_time_remaining(selected_time)
-            self.root.after(0, self.show_next_image_continuously, selected_time)
+            if self.paused:  # If paused, continue from pause
+                self.show_next_image_continuously(selected_time)
+            else:  # If not paused, start from the beginning
+                self.root.after(0, self.show_next_image_continuously, selected_time)
+
+    def pause_slideshow(self):
+        """Pause or resume the slideshow based on the current state."""
+        self.paused = not self.paused  # Toggle pause state
     
     def select_image_folder(self):
         """Select a folder containing images and display the first image in the folder."""
@@ -118,8 +136,8 @@ class FigureDrawingApp:
             self.show_image()
     
     def show_next_image_continuously(self, time_interval):
-        """Display the images continuously based on the selected time interval."""
-        if self.slideshow_running:
+        """Display images continuously based on the selected time interval."""
+        if self.slideshow_running and not self.paused:
             self.show_next_image()
             self.update_time_remaining(time_interval)
             self.root.after(time_interval * 1000, self.show_next_image_continuously, time_interval)
