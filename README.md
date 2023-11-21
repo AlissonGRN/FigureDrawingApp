@@ -50,4 +50,4 @@ This project is licensed under the MIT License.
 
 ### Acknowledgements
 
-This application was created as a simple image viewer for assisting in human figure drawing, inspired by similar tools available online.
+This application was created as a simple image viewer for assisting in human figure drawing, inspired by similar tools available online, feel free to contact me for any questions or suggestions
