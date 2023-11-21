@@ -1,31 +1,32 @@
-import os  # Import the os module for operating system functionalities
-import tkinter as tk  # Import the tkinter module for GUI development
-from tkinter import filedialog  # Import filedialog from tkinter for file selection
-from PIL import Image, ImageTk  # Import Image and ImageTk modules from PIL for image handling
+import os
+import tkinter as tk
+from tkinter import filedialog
+from PIL import Image, ImageTk
 
 class FigureDrawingApp:
     def __init__(self, root):
-        self.root = root  # Set the root window for the application
-        self.root.title("Figure Drawing App")  # Set the window title
+        # Initialize the application
+        self.root = root
+        self.root.title("Figure Drawing App")
         
-        # Initialize variables to store image folder, files, and current index
+        # Variables to store image folder, files, current index, and pause state
         self.image_folder = ""
         self.image_files = []
         self.current_image_index = 0
         self.paused = False
+        self.time_remaining_for_next = 0
         
-        # Create a label to display images
+        # Label to display images
         self.image_label = tk.Label(root)
         self.image_label.pack()
         
-        # Create buttons for selecting image folder, starting, and stopping the slideshow
+        # Buttons for selecting image folder, starting, pausing, and stopping the slideshow
         self.load_button = tk.Button(root, text="Select Image Folder", command=self.select_image_folder)
         self.load_button.pack()
 
-        # Create frame for start and pause buttons
+        # Frame for start, pause, and stop buttons
         self.start_pause_frame = tk.Frame(root)
         self.start_pause_frame.pack()
-
 
         self.start_button = tk.Button(self.start_pause_frame, text="Start", command=self.start_slideshow)
         self.start_button.pack(side=tk.RIGHT)
@@ -36,59 +37,60 @@ class FigureDrawingApp:
         self.stop_button = tk.Button(root, text="Stop", command=self.stop_slideshow)
         self.stop_button.pack()
 
-        # Define options for time intervals and set the default value
+        # Time interval options and dropdown menu
         self.time_options = [30, 60, 120, 300, 600]
         self.selected_time = tk.StringVar()
         self.selected_time.set(self.time_options[0])
 
-        # Create a dropdown menu for selecting time intervals
         self.time_dropdown = tk.OptionMenu(root, self.selected_time, *self.time_options)
         self.time_dropdown.pack()
 
-        # Create a label to display the remaining time
+        # Label to display the remaining time until the next image
         self.time_remaining_label = tk.Label(root, text="Time Remaining: ")
         self.time_remaining_label.pack()
 
-        # Create a frame for navigation buttons
+        # Frame for navigation buttons
         self.navigation_frame = tk.Frame(root)
         self.navigation_frame.pack()
         
-        # Create buttons for navigating to the previous and next images
+        # Buttons to navigate to previous and next images
         self.previous_button = tk.Button(self.navigation_frame, text="<< Previous", command=self.show_previous_image)
         self.previous_button.pack(side=tk.LEFT)
         self.next_button = tk.Button(self.navigation_frame, text="Next >>", command=self.show_next_image)
         self.next_button.pack(side=tk.RIGHT)
         
-        # Initialize slideshow state
+        # Slideshow state initialization
         self.slideshow_running = False
 
-    def update_time_continuously(self, remaining_time):
-        """Update the time remaining continuously while the slideshow is running."""
-        if remaining_time >= 0 and self.slideshow_running:
-            self.update_time_remaining(remaining_time)
-            self.root.after(1000, self.update_time_continuously, remaining_time - 1)
-    
+    def update_time_continuously(self):
+        # Continuously updates the time remaining until the next image
+        if self.time_remaining_for_next > 0:
+            self.time_remaining_for_next -= 1
+            self.update_time_remaining(self.time_remaining_for_next)
+            self.root.after(1000, self.update_time_continuously)
+
     def update_time_remaining(self, time_remaining):
-        """Update the label with the remaining time."""
-        self.time_remaining_label.config(text=f"Time Remaining: {time_remaining} seconds")
+        # Updates the label with the remaining time
+        self.time_remaining_label.config(text=f"Time Remaining: {time_remaining} seconds until next image")
 
     def start_slideshow(self):
-        """Start the slideshow or continue from pause."""
+        # Starts or continues the slideshow based on the pause state
         if self.image_files:
             self.slideshow_running = True
             selected_time = int(self.selected_time.get())
+            self.time_remaining_for_next = selected_time
             self.update_time_remaining(selected_time)
-            if self.paused:  # If paused, continue from pause
+            if self.paused:
                 self.show_next_image_continuously(selected_time)
-            else:  # If not paused, start from the beginning
+            else:
                 self.root.after(0, self.show_next_image_continuously, selected_time)
 
     def pause_slideshow(self):
-        """Pause or resume the slideshow based on the current state."""
-        self.paused = not self.paused  # Toggle pause state
+        # Toggles the pause state of the slideshow
+        self.paused = not self.paused
     
     def select_image_folder(self):
-        """Select a folder containing images and display the first image in the folder."""
+        # Selects a folder containing images and displays the first image in the folder
         self.image_folder = tk.filedialog.askdirectory()
         if self.image_folder:
             self.image_files = [os.path.join(self.image_folder, file) for file in os.listdir(self.image_folder)
@@ -97,7 +99,7 @@ class FigureDrawingApp:
             self.show_image()
     
     def show_image(self):
-        """Display the image in the image label."""
+        # Displays the image in the image label
         if self.image_files:
             image_path = self.image_files[self.current_image_index]
             original_image = Image.open(image_path)
@@ -118,31 +120,33 @@ class FigureDrawingApp:
             self.image_label.image = photo
     
     def stop_slideshow(self):
-        """Stop the slideshow."""
+        # Stops the slideshow and removes the displayed image
         self.slideshow_running = False
-        # Remove the displayed image by setting the image label content to empty string
         self.image_label.config(image="")
+        self.image_label.image = None
 
     def show_previous_image(self):
-        """Display the previous image in the image label."""
+        # Displays the previous image in the image label
         if self.image_files:
             self.current_image_index = (self.current_image_index - 1) % len(self.image_files)
             self.show_image()
     
     def show_next_image(self):
-        """Display the next image in the image label."""
+        # Displays the next image in the image label
         if self.image_files:
             self.current_image_index = (self.current_image_index + 1) % len(self.image_files)
             self.show_image()
     
     def show_next_image_continuously(self, time_interval):
-        """Display images continuously based on the selected time interval."""
+        # Displays images continuously based on the selected time interval
         if self.slideshow_running and not self.paused:
             self.show_next_image()
             self.update_time_remaining(time_interval)
+            self.time_remaining_for_next = time_interval
             self.root.after(time_interval * 1000, self.show_next_image_continuously, time_interval)
 
 if __name__ == "__main__":
-    root = tk.Tk()  # Create the main window
-    app = FigureDrawingApp(root)  # Initialize the FigureDrawingApp instance
-    root.mainloop()  # Start the main loop to handle events in the GUI
+    root = tk.Tk()
+    app = FigureDrawingApp(root)
+    app.update_time_continuously()  # Start continuous time update
+    root.mainloop()
