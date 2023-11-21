@@ -102,7 +102,9 @@ class FigureDrawingApp:
     def stop_slideshow(self):
         """Stop the slideshow."""
         self.slideshow_running = False
-    
+        # Remove the displayed image by setting the image label content to empty string
+        self.image_label.config(image="")
+
     def show_previous_image(self):
         """Display the previous image in the image label."""
         if self.image_files:
