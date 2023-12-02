@@ -14,7 +14,6 @@ class FigureDrawingApp:
         self.image_files = []
         self.current_image_index = 0
         self.paused = False
-        self.time_remaining_for_next = 0
         
         # Label to display images
         self.image_label = tk.Label(root)
@@ -42,44 +41,24 @@ class FigureDrawingApp:
         self.selected_time = tk.StringVar()
         self.selected_time.set(self.time_options[0])
 
-        self.time_dropdown = tk.OptionMenu(root, self.selected_time, *self.time_options)
-        self.time_dropdown.pack()
-
-        # Label to display the remaining time until the next image
-        self.time_remaining_label = tk.Label(root, text="Time Remaining: ")
-        self.time_remaining_label.pack()
-
         # Frame for navigation buttons
         self.navigation_frame = tk.Frame(root)
         self.navigation_frame.pack()
         
         # Buttons to navigate to previous and next images
-        self.previous_button = tk.Button(self.navigation_frame, text="<< Previous", command=self.show_previous_image)
+        self.previous_button = tk.Button(self.navigation_frame, text="←", command=self.show_previous_image)
         self.previous_button.pack(side=tk.LEFT)
-        self.next_button = tk.Button(self.navigation_frame, text="Next >>", command=self.show_next_image)
+        self.next_button = tk.Button(self.navigation_frame, text="→", command=self.show_next_image)
         self.next_button.pack(side=tk.RIGHT)
         
         # Slideshow state initialization
         self.slideshow_running = False
-
-    def update_time_continuously(self):
-        # Continuously updates the time remaining until the next image
-        if self.time_remaining_for_next > 0:
-            self.time_remaining_for_next -= 1
-            self.update_time_remaining(self.time_remaining_for_next)
-            self.root.after(1000, self.update_time_continuously)
-
-    def update_time_remaining(self, time_remaining):
-        # Updates the label with the remaining time
-        self.time_remaining_label.config(text=f"Time Remaining: {time_remaining} seconds until next image")
 
     def start_slideshow(self):
         # Starts or continues the slideshow based on the pause state
         if self.image_files:
             self.slideshow_running = True
             selected_time = int(self.selected_time.get())
-            self.time_remaining_for_next = selected_time
-            self.update_time_remaining(selected_time)
             if self.paused:
                 self.show_next_image_continuously(selected_time)
             else:
@@ -141,12 +120,9 @@ class FigureDrawingApp:
         # Displays images continuously based on the selected time interval
         if self.slideshow_running and not self.paused:
             self.show_next_image()
-            self.update_time_remaining(time_interval)
-            self.time_remaining_for_next = time_interval
             self.root.after(time_interval * 1000, self.show_next_image_continuously, time_interval)
 
 if __name__ == "__main__":
     root = tk.Tk()
     app = FigureDrawingApp(root)
-    app.update_time_continuously()  # Start continuous time update
     root.mainloop()
